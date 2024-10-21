@@ -5,11 +5,11 @@
         "password": "admin"
       },
       {
-        "username": "jane_smith",
+        "username": "user01",
         "password": "password123"
       },
       {
-        "username": "alice_wonderland",
+        "username": "user02",
         "password": "qwerty"
       }
     ]
