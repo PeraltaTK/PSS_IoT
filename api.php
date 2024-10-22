@@ -1,3 +1,5 @@
+// esquema API feito no quadro pelo stor usado para gerar este codigo [OCR]
+
 <?php
 // Define os cabeçalhos da API
 header("Content-Type: application/json");
