@@ -1,134 +1,93 @@
 <?php
-header('Content-Type: application/json');
+// Define os cabeçalhos da API
+header("Content-Type: application/json");
 
-// Function to read data from a JSON file
-function readDataFromJson($filename) {
-    if (!file_exists($filename)) {
-        return null;
+// Verifica o método da requisição
+$method = $_SERVER['REQUEST_METHOD'];
+
+// Função para enviar respostas da API
+function sendResponse($status, $data) {
+    http_response_code($status);
+    echo json_encode($data);
+}
+
+// Função para lidar com requisições GET
+function handleGetRequest() {
+    // Verifica se o parâmetro 'nome' foi passado na URL
+    $nome = isset($_GET['nome']) ? $_GET['nome'] : null;
+    
+    // Verifica se o nome foi fornecido
+    if (!$nome) {
+        sendResponse(400, ["message" => "Nome do sensor/atuador não foi fornecido"]);
+        return;
     }
-    $jsonContent = file_get_contents($filename);
-    return json_decode($jsonContent, true);
+
+    // Simula leitura de dados a partir do arquivo JSON correspondente
+    $filePath = "data/{$nome}.json";  // Presumindo que os arquivos JSON estão em uma pasta chamada 'data'
+    
+    if (!file_exists($filePath)) {
+        sendResponse(404, ["message" => "Sensor/Atuador não encontrado"]);
+        return;
+    }
+
+    // Lê o conteúdo do arquivo JSON
+    $data = file_get_contents($filePath);
+    $sensorData = json_decode($data, true);
+    
+    // Retorna os dados
+    sendResponse(200, $sensorData);
 }
 
-// Function to write data to a JSON file
-function writeDataToJson($filename, $data) {
-    $jsonContent = json_encode($data, JSON_PRETTY_PRINT);
-    file_put_contents($filename, $jsonContent);
+// Função para lidar com requisições POST
+function handlePostRequest() {
+    // Decodifica o corpo da requisição JSON
+    $input = json_decode(file_get_contents('php://input'), true);
+    
+    // Verifica se os parâmetros esperados foram fornecidos
+    if (!isset($input['nome'])) {
+        sendResponse(400, ["message" => "Nome do sensor/atuador não foi fornecido"]);
+        return;
+    }
+    
+    if (!isset($input['valor']) || !isset($input['hora'])) {
+        sendResponse(400, ["message" => "Falta 1 ou mais parâmetros (nome, valor, hora)"]);
+        return;
+    }
+
+    $nome = $input['nome'];
+    $valor = $input['valor'];
+    $hora = $input['hora'];
+    
+    // Simula a gravação de dados em um arquivo JSON correspondente
+    $filePath = "data/{$nome}.json";  // Presumindo que os arquivos são armazenados na pasta 'data'
+    
+    // Dados a serem gravados no arquivo JSON
+    $sensorData = [
+        "nome" => $nome,
+        "valor" => $valor,
+        "hora" => $hora
+    ];
+    
+    // Grava os dados no arquivo
+    file_put_contents($filePath, json_encode($sensorData));
+    
+    // Retorna uma resposta de sucesso
+    sendResponse(201, ["message" => "Dados gravados com sucesso"]);
 }
 
-// Determine which data to serve based on the 'file' query parameter
-$file = isset($_REQUEST['file']) ? $_REQUEST['file'] : '';
-
-$response = [];
-
-switch ($_SERVER['REQUEST_METHOD']) {
+// Lida com os diferentes métodos HTTP
+switch ($method) {
     case 'GET':
-        switch ($file) {
-            case 'fielddataa':
-                // Read data from field_data.json
-                $fieldData = readDataFromJson(__DIR__ . '/field_data.json');
-                if ($fieldData === null) {
-                    $response = ['error' => 'field_data.json not found or invalid JSON'];
-                } else {
-                    $response = ['field_data' => $fieldData];
-                }
-                break;
-            case 'index':
-            case 'dashboard':
-            case 'well':
-                // Read data from data.json
-                $data = readDataFromJson(__DIR__ . '/data.json');
-                if ($data === null) {
-                    $response = ['error' => 'data.json not found or invalid JSON'];
-                } else {
-                    $response = ['data' => $data];
-                }
-                break;
-            default:
-                $response = ['error' => 'Invalid file parameter'];
-                break;
-        }
+        handleGetRequest();
         break;
     case 'POST':
-        // Handle POST request to update data
-        $inputData = json_decode(file_get_contents('php://input'), true);
-        if ($inputData === null) {
-            $response = ['error' => 'Invalid JSON input'];
-        } else {
-            switch ($file) {
-                case 'fielddataa':
-                    writeDataToJson(__DIR__ . '/field_data.json', $inputData);
-                    $response = ['success' => 'field_data.json updated'];
-                    break;
-                case 'index':
-                case 'dashboard':
-                case 'well':
-                    writeDataToJson(__DIR__ . '/data.json', $inputData);
-                    $response = ['success' => 'data.json updated'];
-                    break;
-                default:
-                    $response = ['error' => 'Invalid file parameter'];
-                    break;
-            }
-        }
+        handlePostRequest();
         break;
     default:
-        $response = ['error' => 'Unsupported request method'];
+        // Retorna erro 405 para métodos não permitidos
+        sendResponse(405, ["message" => "Método não permitido"]);
         break;
 }
+?>
 
-// Output the response as JSON
-echo json_encode($response);
-// Function to generate random data
-function generateRandomData() {
-    return [
-        'temperature' => rand(-10, 40),
-        'humidity' => rand(0, 100),
-        'pressure' => rand(950, 1050)
-    ];
-}
-
-// Function to serve backup data
-function serveBackupData($file) {
-    $backupData = generateRandomData();
-    switch ($file) {
-        case 'fielddataa':
-            return ['field_data' => $backupData];
-        case 'index':
-        case 'dashboard':
-        case 'well':
-            return ['data' => $backupData];
-        default:
-            return ['error' => 'Invalid file parameter'];
-    }
-}
-
-// Modify the GET request handling to use backup data if main data fails
-switch ($_SERVER['REQUEST_METHOD']) {
-    case 'GET':
-        switch ($file) {
-            case 'fielddataa':
-                $fieldData = readDataFromJson(__DIR__ . '/field_data.json');
-                if ($fieldData === null) {
-                    $response = serveBackupData($file);
-                } else {
-                    $response = ['field_data' => $fieldData];
-                }
-                break;
-            case 'index':
-            case 'dashboard':
-            case 'well':
-                $data = readDataFromJson(__DIR__ . '/data.json');
-                if ($data === null) {
-                    $response = serveBackupData($file);
-                } else {
-                    $response = ['data' => $data];
-                }
-                break;
-            default:
-                $response = ['error' => 'Invalid file parameter'];
-                break;
-        }
-        break;
-    // The rest of the code remains unchanged
-}
+// ver descrição da api
