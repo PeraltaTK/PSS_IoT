@@ -110,3 +110,60 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 </body>
 </html>
+// Include API functions
+include 'api.php';
+
+// Fetch some data from the API
+$apiData = fetchDataFromAPI();
+
+// Display the data
+if ($apiData) {
+    echo '<div class="container mt-5">';
+    echo '<h2>Data from API</h2>';
+    echo '<ul class="list-group">';
+    foreach ($apiData as $item) {
+        echo '<li class="list-group-item">' . htmlspecialchars($item) . '</li>';
+    }
+    echo '</ul>';
+    echo '</div>';
+} else {
+    echo '<div class="alert alert-warning mt-5">No data available from the API.</div>';
+}
+// Include fielddata.php for sensor graphs and history
+include 'fielddata.php';
+
+// Fetch sensor data
+$sensorData = getSensorData();
+
+// Display sensor graphs and history
+if ($sensorData) {
+    echo '<div class="container mt-5">';
+    echo '<h2>Sensor Data</h2>';
+    echo '<div class="row">';
+    
+    // Display sensor graphs
+    echo '<div class="col-md-6">';
+    echo '<h3>Graphs</h3>';
+    foreach ($sensorData['graphs'] as $graph) {
+        echo '<div class="graph">';
+        echo '<img src="' . htmlspecialchars($graph['url']) . '" alt="' . htmlspecialchars($graph['title']) . '">';
+        echo '<p>' . htmlspecialchars($graph['title']) . '</p>';
+        echo '</div>';
+    }
+    echo '</div>';
+    
+    // Display sensor history
+    echo '<div class="col-md-6">';
+    echo '<h3>History</h3>';
+    echo '<ul class="list-group">';
+    foreach ($sensorData['history'] as $history) {
+        echo '<li class="list-group-item">' . htmlspecialchars($history) . '</li>';
+    }
+    echo '</ul>';
+    echo '</div>';
+    
+    echo '</div>';
+    echo '</div>';
+} else {
+    echo '<div class="alert alert-warning mt-5">No sensor data available.</div>';
+}

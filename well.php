@@ -16,6 +16,11 @@ function readDataFromJson($filename) {
 
 // Read the well capacity data
 $wellData = readDataFromJson('well_data.json');
+
+// Check if well capacity data is available
+if (!isset($wellData['well_capacity'])) {
+    die("Error: 'well_capacity' data not found in JSON file.");
+}
 ?>
 
 <!DOCTYPE html>
