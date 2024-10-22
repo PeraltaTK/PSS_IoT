@@ -162,14 +162,14 @@ $fieldData = fetchDataFromApi('api.php');
 
     <script>
         // Prepare data for the charts
-        const temperatureLabels = <?php echo json_encode(array_column($fieldData['field_data']['temperature'], 'date')); ?>;
-        const temperatureValues = <?php echo json_encode(array_column($fieldData['field_data']['temperature'], 'value')); ?>;
+        const temperatureLabels = <?php echo isset($fieldData['temperature']) ? json_encode(array_column($fieldData['temperature'], 'date')) : json_encode([]); ?>;
+        const temperatureValues = <?php echo isset($fieldData['temperature']) ? json_encode(array_column($fieldData['temperature'], 'value')) : json_encode([]); ?>;
 
-        const humidityLabels = <?php echo json_encode(array_column($fieldData['field_data']['humidity'], 'date')); ?>;
-        const humidityValues = <?php echo json_encode(array_column($fieldData['field_data']['humidity'], 'value')); ?>;
+        const humidityLabels = <?php echo isset($fieldData['humidity']) ? json_encode(array_column($fieldData['humidity'], 'date')) : json_encode([]); ?>;
+        const humidityValues = <?php echo isset($fieldData['humidity']) ? json_encode(array_column($fieldData['humidity'], 'value')) : json_encode([]); ?>;
 
-        const soilMoistureLabels = <?php echo json_encode(array_column($fieldData['field_data']['soil_moisture'], 'date')); ?>;
-        const soilMoistureValues = <?php echo json_encode(array_column($fieldData['field_data']['soil_moisture'], 'value')); ?>;
+        const soilMoistureLabels = <?php echo isset($fieldData['soil_moisture']) ? json_encode(array_column($fieldData['soil_moisture'], 'date')) : json_encode([]); ?>;
+        const soilMoistureValues = <?php echo isset($fieldData['soil_moisture']) ? json_encode(array_column($fieldData['soil_moisture'], 'value')) : json_encode([]); ?>;
 
         // Create Temperature Chart
         const ctxTemp = document.getElementById('temperatureChart').getContext('2d');
@@ -307,41 +307,29 @@ $fieldData = fetchDataFromApi('api.php');
         });
     </script>
 </body>
-</html>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-    // Create the scene
-    var scene = new THREE.Scene();
-    var camera = new THREE.OrthographicCamera(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, 1, 1000);
-    var renderer = new THREE.WebGLRenderer({ alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
-
-    // Create a plane for the map
-    var geometry = new THREE.PlaneGeometry(800, 600);
-    var texture = new THREE.TextureLoader().load('https://upload.wikimedia.org/wikipedia/commons/6/6a/United_States_Map_-_The_50_States.png');
-    var material = new THREE.MeshBasicMaterial({ map: texture });
-    var plane = new THREE.Mesh(geometry, material);
-    scene.add(plane);
-
-    // Position the camera
-    camera.position.z = 500;
-
-    // Create markers for the crops
-    var cropMarkers = [];
-    crops.forEach(function(crop) {
-        var markerGeometry = new THREE.CircleGeometry(10, 32);
-        var markerMaterial = new THREE.MeshBasicMaterial({ color: crop.status === "Irrigated" ? 0x00ff00 : 0xff0000 });
-        var marker = new THREE.Mesh(markerGeometry, markerMaterial);
-        marker.position.set((crop.lng + 100) * 4, (crop.lat - 40) * 4, 0); // Adjust positions based on map coordinates
-        scene.add(marker);
-        cropMarkers.push(marker);
-    });
-
-    // Render the scene
-    function animate() {
-        requestAnimationFrame(animate);
-        renderer.render(scene, camera);
+    // Function to generate random data
+    function generateRandomData(length, min, max) {
+        return Array.from({ length: length }, () => Math.floor(Math.random() * (max - min + 1)) + min);
     }
-    animate();
+
+    // Generate random data for the charts
+    const randomTemperatureData = generateRandomData(12, 0, 40); // Random temperatures between 0 and 40°C
+    const randomHumidityData = generateRandomData(12, 0, 100); // Random humidity between 0 and 100%
+    const randomSoilMoistureData = generateRandomData(12, 0, 100); // Random soil moisture between 0 and 100%
+
+    // Update Temperature Chart with random data
+    temperatureChart.data.labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    temperatureChart.data.datasets[0].data = randomTemperatureData;
+    temperatureChart.update();
+
+    // Update Humidity Chart with random data
+    humidityChart.data.labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    humidityChart.data.datasets[0].data = randomHumidityData;
+    humidityChart.update();
+
+    // Update Soil Moisture Chart with random data
+    soilMoistureChart.data.labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    soilMoistureChart.data.datasets[0].data = randomSoilMoistureData;
+    soilMoistureChart.update();
 </script>

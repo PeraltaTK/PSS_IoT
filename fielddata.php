@@ -8,14 +8,14 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
-// Function to fetch data from the API
-function fetchDataFromApi($url) {
-    $jsonContent = file_get_contents($url);
+// Function to read data from a JSON file
+function readDataFromJson($filename) {
+    $jsonContent = file_get_contents($filename);
     return json_decode($jsonContent, true); // Decode JSON data into an associative array
 }
 
-// Fetch the field data from the API
-$fieldData = fetchDataFromApi('api.php');
+// Read the field data
+$fieldData = readDataFromJson('field_data.json');
 ?>
 
 <!DOCTYPE html>
@@ -122,15 +122,6 @@ $fieldData = fetchDataFromApi('api.php');
                         color: '#ff6384'
                     }
                 }
-            },
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return context.raw + ' °C';
-                        }
-                    }
-                }
             }
         }
     });
@@ -167,15 +158,6 @@ $fieldData = fetchDataFromApi('api.php');
                         color: '#36a2eb'
                     }
                 }
-            },
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return context.raw + ' %';
-                        }
-                    }
-                }
             }
         }
     });
@@ -210,15 +192,6 @@ $fieldData = fetchDataFromApi('api.php');
                         display: true,
                         text: 'Data',
                         color: '#4bc0c0'
-                    }
-                }
-            },
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return context.raw + ' %';
-                        }
                     }
                 }
             }
