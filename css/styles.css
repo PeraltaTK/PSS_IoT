@@ -1,0 +1,62 @@
+body {
+    font-family: 'Orbitron', sans-serif;
+    background-color: #f8f9fa; /* Light background */
+}
+.clock-container {
+    text-align: center;
+    margin-top: 5%;
+}
+.data-section {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 30px;
+    gap: 20px; /* Space between boxes */
+}
+.data-card {
+    background-color: #fff; /* White background for cards */
+    border: 2px solid #28a745; /* Green border */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    text-align: center;
+    padding: 20px; /* Padding inside the card */
+    width: 200px; /* Fixed width for uniformity */
+}
+.data-title {
+    font-size: 24px;
+    color: #28a745; /* Green color */
+    margin: 10px 0;
+}
+.data-value {
+    font-size: 32px;
+    font-weight: bold;
+    color: #333; /* Darker text color */
+}
+.data-time {
+    font-size: 12px;
+    color: #333; /* Darker text color */
+}
+.button-container {
+    margin-top: 30px;
+    text-align: center;
+}
+.btn-irrigate {
+    background-color: #28a745;
+    color: white;
+}
+.about-us {
+    font-size: 32px;
+    color: #28a745;
+    text-align: center;
+    margin-top: 50px;
+    opacity: 0;
+    animation: fadeIn 3s forwards;
+}
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}

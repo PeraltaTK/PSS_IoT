@@ -3,7 +3,7 @@
 session_start();
 
 // Load users to an array
-$usersFile = file_get_contents('files/users.json');
+$usersFile = file_get_contents('data/users.json');
 $usersArray = json_decode($usersFile, true);
 
 // If the request is post (data submit)
@@ -44,20 +44,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
 
-
-
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Import bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Import Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
-    <title>TechnoGreen - Login</title>
+<?php include 'style/head.php'; ?>
 </head>
 <body class="bg-light">
 
