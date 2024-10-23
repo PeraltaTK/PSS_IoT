@@ -22,6 +22,11 @@ $fieldData = fetchDataFromApi('api.php');
 <html>
 <head>
     <title>Crop Irrigation Status</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -36,6 +41,12 @@ $fieldData = fetchDataFromApi('api.php');
         body {
             font-family: 'Orbitron', sans-serif;
             background-color: #f8f9fa; /* Light background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
         }
         .table-container {
             margin-top: 30px;
@@ -53,9 +64,33 @@ $fieldData = fetchDataFromApi('api.php');
             margin: 0 auto;
             margin-top: 30px;
         }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            width: 100%;
+        }
+        .row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+        .col-md-4 {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin: 10px;
+        }
     </style>
 </head>
 <body>
+    <!-- header -->
+<?php include 'header.php'; ?>
+
     <div id="map"></div>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
@@ -333,3 +368,4 @@ $fieldData = fetchDataFromApi('api.php');
     soilMoistureChart.data.datasets[0].data = randomSoilMoistureData;
     soilMoistureChart.update();
 </script>
+</html>

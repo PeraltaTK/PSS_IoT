@@ -202,10 +202,10 @@ $data = readDataFromJson('data.json');
             new Chart(temperatureCtx, {
                 type: 'line',
                 data: {
-                    labels: data.temperature.timestamps,
+                    labels: data.timestamps,
                     datasets: [{
                         label: 'Temperatura',
-                        data: data.temperature.values,
+                        data: data.values,
                         borderColor: 'rgba(40, 167, 69, 1)',
                         backgroundColor: 'rgba(40, 167, 69, 0.2)',
                         fill: true
