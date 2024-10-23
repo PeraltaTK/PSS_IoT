@@ -1,0 +1,15 @@
+2024/13/03 00:30;desligado
+botao;2024/13/04 15:00;desligado
+botao;2024/13/24 24:00;ligado
+botao;2024/13/24 13:00;ligado
+botao;2024/13/24 20:00;desligado
+botao;2024/13/24 15:00;desligado
+botao;2024/13/24 15:00;desligado
+botao;2024/13/24 15:00;desligado
+botao;2024/13/24 15:00;desligado
+botao;2024/13/24 15:00;desligado
+botao;2024/13/24 16:00;ligado
+botao;2024/13/24 16:00;ligado
+botao;2024/13/24 16:00;ligado
+botao;2024/13/24 16:00;ligado
+botao;2024/13/24 16:00;ligado

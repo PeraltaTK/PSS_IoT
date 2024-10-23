@@ -1,0 +1,9 @@
+2024/13/01 00:10;10
+2024/13/01 00:10;20
+movimento;2024/13/01 10:00;ligado
+movimento;2024/13/24 9:00;false
+movimento;2024/13/24 19:00;desligado
+movimento;2024/13/24 29:00;lig
+movimento;2024/13/24 20:00;ligado
+movimento;2024/13/24 20:00;ligado
+movimento;2024/13/24 20:00;ligado

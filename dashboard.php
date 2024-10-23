@@ -1,21 +1,21 @@
 <?php
-session_start(); // Start the session
+session_start(); // Iniciar a sessão
 
-// Check if the user is logged in
+// Verificar se o utilizador tem sessão iniciada
 if (!isset($_SESSION['username'])) {
-    // Redirect to login page if not logged in
-    header("Location: index.php"); // Change this to your login page
+    // Redirecionar para a página de início de sessão se não tiver sessão iniciada
+    header("Location: index.php"); // Altere esta página para a sua página de início de sessão
     exit();
 }
 
-// Function to read data from a JSON file
+// Função para ler dados de um ficheiro JSON
 function readDataFromJson($filename) {
     $jsonContent = file_get_contents($filename);
-    $dataArray = json_decode($jsonContent, true); // Decode JSON data into an associative array
-    return end($dataArray); // Return the most recent data (last entry in the array)
+    $dataArray = json_decode($jsonContent, true); //Descodificar dados JSON para uma matriz associativa
+    return end($dataArray); // Devolve os dados mais recentes (última entrada na matriz)
 }
 
-// Read the most recent data
+// Ler os dados mais recentes
 $humidityData = readDataFromJson('data/humidity/data.json');
 $soil_moistureData = readDataFromJson('data/soil_moisture/data.json');
 $temperatureData = readDataFromJson('data/temperature/data.json');
@@ -51,7 +51,7 @@ $temperatureData = readDataFromJson('data/temperature/data.json');
             <div class="data-time">Última atualização:<br><?php echo $soil_moistureData['date']; ?></div>
         </div>
 
-        <!-- If you have other data (e.g., well capacity), you can add more cards here -->
+        
     </div>
 
 <div class="button-container">
@@ -79,12 +79,12 @@ $temperatureData = readDataFromJson('data/temperature/data.json');
                 clearInterval(interval);
                 progressText.innerHTML = 'Irrigação Completa!';
             } else {
-                progress += Math.floor(Math.random() * 10) + 1; // Increment progress randomly between 1 and 10
+                progress += Math.floor(Math.random() * 10) + 1; // Incrementar o progresso aleatoriamente entre 1 e 10
                 if (progress > 100) progress = 100;
                 progressBar.style.width = progress + '%';
                 progressText.innerHTML = progress + '%';
             }
-        }, 500); // Update every 500ms
+        }, 500); // Atualização a cada 500ms
     });
 </script>
 

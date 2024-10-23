@@ -1,23 +1,23 @@
 <?php
-session_start(); // Start the session
+session_start(); // Iniciar a sessão
 
-// Check if the user is logged in
+// Verificar se o utilizador tem sessão iniciada
 if (!isset($_SESSION['username'])) {
-    // Redirect to login page if not logged in
-    header("Location: index.php"); // Change this to your login page
+ // Redirecionar para a página de início de sessão se não tiver sessão iniciada
+    header("Location: index.php"); // Mude isto para a sua página de login
     exit();
 }
 
-// Function to read data from a JSON file
+// Função para ler dados de um ficheiro JSON
 function readDataFromJson($filename) {
     $jsonContent = file_get_contents($filename);
-    return json_decode($jsonContent, true); // Decode JSON data into an associative array
+    return json_decode($jsonContent, true); // Descodificar dados JSON numa matriz associativa
 }
 
-// Read the well capacity data
+// Ler os dados de capacidade do poço
 $wellData = readDataFromJson('data/well_data.json');
 
-// Check if well capacity data is available
+// Verificar se os dados relativos à capacidade do poço estão disponíveis
 if (!isset($wellData['well_capacity'])) {
     die("Error: 'well_capacity' data not found in JSON file.");
 }
@@ -66,11 +66,11 @@ if (!isset($wellData['well_capacity'])) {
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Prepare data for the chart
+// Preparar dados para o gráfico
         const labels = <?php echo json_encode(array_column($wellData['well_capacity'], 'date')); ?>;
         const dataValues = <?php echo json_encode(array_column($wellData['well_capacity'], 'value')); ?>;
 
-        // Chart configuration
+// Configuração do gráfico
         const ctx = document.getElementById('wellCapacityChart').getContext('2d');
         const wellCapacityChart = new Chart(ctx, {
             type: 'line',

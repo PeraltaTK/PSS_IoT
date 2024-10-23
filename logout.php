@@ -1,11 +1,11 @@
 <?php
-// session start
+// início da sessão
 session_start();
-// unset all vars
+// anular todas as vars
 $_SESSION = array();
-// destroy session
+// destruir sessão
 session_destroy();
-// reirect to index.php
+// redirecionar para index.php
 header("Location: index.php");
 exit();
 ?>

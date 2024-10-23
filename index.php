@@ -2,41 +2,41 @@
 // Session Start
 session_start();
 
-// Load users to an array
+// Carregar utilizadores para uma matriz
 $usersFile = file_get_contents('data/users.json');
 $usersArray = json_decode($usersFile, true);
 
-// If the request is post (data submit)
+// Se o pedido for post (envio de dados)
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    // Check user and password
+    // Verificar o utilizador e a palavra-passe
     if(isset($_POST['username']) && isset($_POST['password'])){
         $username = $_POST['username'];
         $password = $_POST['password'];
-        // control login var
+        // Definir login válido
         $validLogin = false;
 
-        // check if user in the usersfile
+        // verificar se o utilizador está no ficheiro usersfile
         foreach ($usersArray['users'] as $user) {
             if ($user['username'] === $username && $user['password'] === $password) {
-                // Store username in session
+                // Armazenar o nome de utilizador na sessão
                 $_SESSION['username'] = $username;
-                // control login var
+                // Definir login válido
                 $validLogin = true;
                 break;
             }
         }
 
-        // if valid login redirect to dashboard
+        // se o login for válido, redirecionar para o painel de controlo
         if ($validLogin) {
             header("Location: dashboard.php");
             exit(); 
         } else {
-            // if invalid set error
+           // se inválido, definir erro
             $error_message = "Credenciais inválidas. Por favor, tente novamente.";
         }
     } else {
-        // if empty set error
+        // se erro de conjunto vazio
         $error_message = "Por favor, preencha os campos de username e password.";
     }
 }
@@ -51,7 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body class="bg-light">
 
-<!-- login container -->
+<!-- contentor de início de sessão -->
 <div class="container d-flex justify-content-center align-items-center min-vh-100">
     <div class="row w-100">
         <div class="col-md-6 d-none d-md-flex align-items-center justify-content-center bg-success text-white p-4 rounded-start">
@@ -64,7 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="col-md-6 bg-white p-5 rounded-end shadow">
             <h1 class="text-center mb-4">Login</h1>
             <form method="post" accept-charset="utf-8">
-                <!-- Username -->
+                <!-- Nome de utilizador -->
                 <div class="mb-3">
                     <label for="username" class="form-label">Username</label>
                     <div class="input-group">
@@ -73,7 +73,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </div>
                 </div>
 
-                <!-- Password -->
+                <!-- Palavra-passe -->
                 <div class="mb-3">
                     <label for="password" class="form-label">Password</label>
                     <div class="input-group">
@@ -82,12 +82,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </div>
                 </div>
 
-                <!-- Submit button -->
+                <!-- Botão Enviar -->
                 <div class="d-grid">
                     <button type="submit" class="btn btn-success">Login</button>
                 </div>
 
-                <!-- Show error msg if set -->
+                <!-- Mostrar mensagem de erro se definido -->
                 <?php
                 if (isset($error_message)) {
                     echo '<div class="alert alert-danger mt-3">' . $error_message . '</div>';

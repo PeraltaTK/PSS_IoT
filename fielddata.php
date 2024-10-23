@@ -1,20 +1,20 @@
 <?php
-session_start(); // Start the session
+session_start(); // Iniciar a sessão
 
-// Check if the user is logged in
+// Verificar se o utilizador tem sessão iniciada
 if (!isset($_SESSION['username'])) {
-    // Redirect to login page if not logged in
-    header("Location: index.php"); // Change this to your login page
+    // Redirecionar para a página de início de sessão se não tiver sessão iniciada
+    header("Location: index.php"); // Altere esta página para a sua página de início de sessão
     exit();
 }
 
-// Function to read data from a JSON file
+// Função para ler dados de um ficheiro JSON
 function readDataFromJson($filename) {
     $jsonContent = file_get_contents($filename);
-    return json_decode($jsonContent, true); // Decode JSON data into an associative array
+    return json_decode($jsonContent, true); // Descodificar dados JSON para uma matriz associativa
 }
 
-// Read data from JSON files
+// Ler dados de ficheiros JSON
 $humidityData = readDataFromJson('data/humidity/data.json');
 $soil_moistureData = readDataFromJson('data/soil_moisture/data.json');
 $temperatureData = readDataFromJson('data/temperature/data.json');
@@ -29,7 +29,7 @@ $temperatureData = readDataFromJson('data/temperature/data.json');
 <!-- header -->
 <?php include 'style/header.php'; ?>
 
-<!-- Chart Section -->
+<!-- Secção do gráfico -->
 <div class="container">
     <div class="row">
         <div class="col-md-4 chart-container">
@@ -49,7 +49,7 @@ $temperatureData = readDataFromJson('data/temperature/data.json');
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Prepare data for the charts
+    // Preparar os dados para os gráficos
     const temperatureLabels = <?php echo json_encode(array_column($temperatureData, 'date')); ?>;
     const temperatureValues = <?php echo json_encode(array_column($temperatureData, 'value')); ?>;
 
@@ -59,7 +59,7 @@ $temperatureData = readDataFromJson('data/temperature/data.json');
     const soilMoistureLabels = <?php echo json_encode(array_column($soil_moistureData, 'date')); ?>;
     const soilMoistureValues = <?php echo json_encode(array_column($soil_moistureData, 'value')); ?>;
 
-    // Create Temperature Chart
+    // Criar gráfico de temperatura
     const ctxTemp = document.getElementById('temperatureChart').getContext('2d');
     const temperatureChart = new Chart(ctxTemp, {
         type: 'line',
@@ -95,7 +95,7 @@ $temperatureData = readDataFromJson('data/temperature/data.json');
         }
     });
 
-    // Create Humidity Chart
+    // Criar gráfico de humidade
     const ctxHum = document.getElementById('humidityChart').getContext('2d');
     const humidityChart = new Chart(ctxHum, {
         type: 'line',
@@ -131,7 +131,7 @@ $temperatureData = readDataFromJson('data/temperature/data.json');
         }
     });
 
-    // Create Soil Moisture Chart
+    // Criar gráfico de humidade do solo
     const ctxSoil = document.getElementById('soilMoistureChart').getContext('2d');
     const soilMoistureChart = new Chart(ctxSoil, {
         type: 'line',
