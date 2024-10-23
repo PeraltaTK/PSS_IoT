@@ -1,97 +1,104 @@
 <?php
 
-// Define the filename for the JSON data
-$humidityFile = '/data/humidity/data.json';
-$soilMoistureFile = '/data/soil_moisture/data.json';
-$temperatureFile = '/data/temperature/data.json';
+// Define o cabeçalho da resposta como JSON
+header('Content-Type: application/json');
 
-// Function to read data from a JSON file
-function readDataFromJson($filename) {
-    if (file_exists($filename)) {
-        $jsonContent = file_get_contents($filename);
-        return json_decode($jsonContent, true); // Decode JSON data into an associative array
+// Função para enviar a resposta com código de status HTTP
+function sendResponse($data, $status = 200) {
+    http_response_code($status);
+    echo json_encode($data, JSON_PRETTY_PRINT);
+    exit;
+}
+
+// Função para ler o arquivo JSON do sensor
+function getSensorData($sensorType) {
+    // Caminho do arquivo JSON baseado no tipo de sensor
+    $filePath = __DIR__ . "/../data/{$sensorType}/data.json";
+
+    // Verifica se o arquivo existe
+    if (file_exists($filePath)) {
+        // Lê e retorna o conteúdo do arquivo JSON
+        $jsonData = file_get_contents($filePath);
+        return json_decode($jsonData, true); // Retorna o array associativo
+    } else {
+        // Retorna null se o arquivo não for encontrado
+        return null;
     }
-    return ['aaa'];
 }
 
-// Function to write data to a JSON file
-function writeDataToJson($filename, $data) {
-    $existingData = readDataFromJson($filename);
-    $existingData[] = $data; // Append new data
-    file_put_contents($filename, json_encode($existingData, JSON_PRETTY_PRINT));
+// Função para salvar dados no arquivo JSON do sensor
+function saveSensorData($sensorType, $data) {
+    // Caminho do arquivo JSON baseado no tipo de sensor
+    $filePath = __DIR__ . "/../data/{$sensorType}/data.json";
+
+    // Converte os dados para JSON e salva no arquivo
+    $jsonData = json_encode($data, JSON_PRETTY_PRINT);
+    if (file_put_contents($filePath, $jsonData) !== false) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
-// Handle API requests
-header('Content-Type: application/json'); // Set response type to JSON
-$requestMethod = $_SERVER['REQUEST_METHOD'];
+// Verifica o método da requisição
+$method = $_SERVER['REQUEST_METHOD'];
 
-switch ($requestMethod) {
-    case 'GET':
-        if (isset($_GET['type'])) {
-            $type = $_GET['type'];
-            switch ($type) {
-                case 'humidity':
-                    $data = readDataFromJson($humidityFile);
-                    break;
-                case 'soil_moisture':
-                    $data = readDataFromJson($soilMoistureFile);
-                    break;
-                case 'temperature':
-                    $data = readDataFromJson($temperatureFile);
-                    break;
-                case 'latest':
-                    // Return latest data for all types
-                    $latestData = [
-                        'humidity' => end(readDataFromJson($humidityFile)),
-                        'soil_moisture' => end(readDataFromJson($soilMoistureFile)),
-                        'temperature' => end(readDataFromJson($temperatureFile))
-                    ];
-                    echo json_encode($latestData);
-                    exit();
-                default:
-                    http_response_code(400); // Bad Request
-                    echo json_encode(['message' => 'Invalid type specified']);
-                    exit();
-            }
-            echo json_encode($data);
+if ($method === 'GET') {
+    // Verifica se o parâmetro 'type' foi passado
+    if (isset($_GET['type'])) {
+        $type = $_GET['type'];
+        
+        // Força a resposta para retornar o conteúdo do JSON de temperatura
+        $sensorData = getSensorData($type);
+        
+        if ($sensorData !== null) {
+            // Responde com os dados do sensor
+            sendResponse($sensorData);
         } else {
-            http_response_code(400); // Bad Request
-            echo json_encode(['message' => 'Type parameter is required']);
+            // Responde com erro se o arquivo não for encontrado
+            sendResponse(['error' => 'Arquivo JSON do sensor não encontrado.'], 404);
         }
-        break;
+    } else {
+        // Responde com erro se o parâmetro 'type' estiver ausente
+        sendResponse(['error' => 'Parâmetro "type" ausente.'], 400);
+    }
+} elseif ($method === 'POST') {
+    // Lê os dados enviados no corpo da requisição
+    $inputData = json_decode(file_get_contents('php://input'), true);
 
-    case 'POST':
-        $inputData = json_decode(file_get_contents('php://input'), true); // Get input data
-        if (isset($inputData['type']) && isset($inputData['value']) && isset($inputData['date'])) {
-            $newData = [
-                'value' => $inputData['value'],
-                'date' => $inputData['date']
+    // Verifica se o parâmetro 'type' foi passado
+    if (isset($inputData['type']) && isset($inputData['date']) && isset($inputData['value'])) {
+        $type = $inputData['type'];
+        
+        // Lê os dados existentes do sensor
+        $sensorData = getSensorData($type);
+        
+        if ($sensorData !== null) {
+            // Adiciona a nova entrada aos dados existentes
+            $newEntry = [
+                'date' => $inputData['date'],
+                'value' => $inputData['value']
             ];
-            switch ($inputData['type']) {
-                case 'humidity':
-                    writeDataToJson($humidityFile, $newData);
-                    break;
-                case 'soil_moisture':
-                    writeDataToJson($soilMoistureFile, $newData);
-                    break;
-                case 'temperature':
-                    writeDataToJson($temperatureFile, $newData);
-                    break;
-                default:
-                    http_response_code(400); // Bad Request
-                    echo json_encode(['message' => 'Invalid type specified']);
-                    exit();
+            $sensorData[] = $newEntry;
+            
+            // Salva os dados atualizados no arquivo JSON do sensor
+            if (saveSensorData($type, $sensorData)) {
+                // Responde com sucesso
+                sendResponse(['message' => 'Dados salvos com sucesso.']);
+            } else {
+                // Responde com erro se não conseguir salvar os dados
+                sendResponse(['error' => 'Erro ao salvar os dados.'], 500);
             }
-            echo json_encode(['message' => 'Data added successfully']);
         } else {
-            http_response_code(400); // Bad Request
-            echo json_encode(['message' => 'Invalid input data']);
+            // Responde com erro se o arquivo não for encontrado
+            sendResponse(['error' => 'Arquivo JSON do sensor não encontrado.'], 404);
         }
-        break;
-
-    default:
-        http_response_code(405); // Method Not Allowed
-        echo json_encode(['message' => 'Method not allowed']);
-        break;
+    } else {
+        // Responde com erro se os parâmetros estiverem ausentes
+        sendResponse(['error' => 'Parâmetros "type", "date" ou "value" ausentes.'], 400);
+    }
+} else {
+    // Responde com erro para métodos que não sejam GET ou POST
+    sendResponse(['error' => 'Método não permitido.'], 405);
 }
 ?>

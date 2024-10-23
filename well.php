@@ -15,7 +15,7 @@ function readDataFromJson($filename) {
 }
 
 // Read the well capacity data
-$wellData = readDataFromJson('files/well_data.json');
+$wellData = readDataFromJson('data/well_data.json');
 
 // Check if well capacity data is available
 if (!isset($wellData['well_capacity'])) {
@@ -58,7 +58,7 @@ if (!isset($wellData['well_capacity'])) {
 <body>
 
 <!-- header -->
-<?php include 'header.php'; ?>
+<?php include 'style/header.php'; ?>
     <div class="title">Histórico de Capacidade do Poço</div>
     <div class="chart-container">
         <canvas id="wellCapacityChart"></canvas>
