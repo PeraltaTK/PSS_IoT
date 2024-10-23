@@ -60,3 +60,22 @@ body {
         opacity: 1;
     }
 }
+
+
+.table-container {
+    margin-top: 30px;
+    width: 80%;
+    margin: 0 auto;
+}
+.table-title {
+    text-align: center;
+    margin-top: 20px;
+    color: #28a745;
+    font-size: 32px;
+}
+.chart-container {
+    width: 100%; /* Ensures the charts take full column width */
+    margin: 0 auto;
+    margin-top: 30px;
+}
+

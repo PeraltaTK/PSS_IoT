@@ -14,51 +14,20 @@ function readDataFromJson($filename) {
     return json_decode($jsonContent, true); // Decode JSON data into an associative array
 }
 
-// Read the field data
-$fieldData = readDataFromJson('files/field_data.json');
+// Read data from JSON files
+$humidityData = readDataFromJson('data/humidity/data.json');
+$soil_moistureData = readDataFromJson('data/soil_moisture/data.json');
+$temperatureData = readDataFromJson('data/temperature/data.json');
 ?>
-
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dados do Campo - TechnoGreen</title>
-    <link rel="icon" href="./img/1.png">
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
-
-    <style>
-        body {
-            font-family: 'Orbitron', sans-serif;
-            background-color: #f8f9fa; /* Light background */
-        }
-        .table-container {
-            margin-top: 30px;
-            width: 80%;
-            margin: 0 auto;
-        }
-        .table-title {
-            text-align: center;
-            margin-top: 20px;
-            color: #28a745;
-            font-size: 32px;
-        }
-        .chart-container {
-            width: 100%; /* Ensures the charts take full column width */
-            margin: 0 auto;
-            margin-top: 30px;
-        }
-    </style>
+<?php include 'style/head.php'; ?>
 </head>
 <body>
 
 <!-- header -->
-<?php include 'header.php'; ?>
+<?php include 'style/header.php'; ?>
 
 <!-- Chart Section -->
 <div class="container">
@@ -81,14 +50,14 @@ $fieldData = readDataFromJson('files/field_data.json');
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     // Prepare data for the charts
-    const temperatureLabels = <?php echo json_encode(array_column($fieldData['field_data']['temperature'], 'date')); ?>;
-    const temperatureValues = <?php echo json_encode(array_column($fieldData['field_data']['temperature'], 'value')); ?>;
+    const temperatureLabels = <?php echo json_encode(array_column($temperatureData, 'date')); ?>;
+    const temperatureValues = <?php echo json_encode(array_column($temperatureData, 'value')); ?>;
 
-    const humidityLabels = <?php echo json_encode(array_column($fieldData['field_data']['humidity'], 'date')); ?>;
-    const humidityValues = <?php echo json_encode(array_column($fieldData['field_data']['humidity'], 'value')); ?>;
+    const humidityLabels = <?php echo json_encode(array_column($humidityData, 'date')); ?>;
+    const humidityValues = <?php echo json_encode(array_column($humidityData, 'value')); ?>;
 
-    const soilMoistureLabels = <?php echo json_encode(array_column($fieldData['field_data']['soil_moisture'], 'date')); ?>;
-    const soilMoistureValues = <?php echo json_encode(array_column($fieldData['field_data']['soil_moisture'], 'value')); ?>;
+    const soilMoistureLabels = <?php echo json_encode(array_column($soil_moistureData, 'date')); ?>;
+    const soilMoistureValues = <?php echo json_encode(array_column($soil_moistureData, 'value')); ?>;
 
     // Create Temperature Chart
     const ctxTemp = document.getElementById('temperatureChart').getContext('2d');

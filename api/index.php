@@ -1,93 +1,97 @@
 <?php
-// Define os cabeçalhos da API
-header("Content-Type: application/json");
 
-// Verifica o método da requisição
-$method = $_SERVER['REQUEST_METHOD'];
+// Define the filename for the JSON data
+$humidityFile = '/data/humidity/data.json';
+$soilMoistureFile = '/data/soil_moisture/data.json';
+$temperatureFile = '/data/temperature/data.json';
 
-// Função para enviar respostas da API
-function sendResponse($status, $data) {
-    http_response_code($status);
-    echo json_encode($data);
+// Function to read data from a JSON file
+function readDataFromJson($filename) {
+    if (file_exists($filename)) {
+        $jsonContent = file_get_contents($filename);
+        return json_decode($jsonContent, true); // Decode JSON data into an associative array
+    }
+    return ['aaa'];
 }
 
-// Função para lidar com requisições GET
-function handleGetRequest() {
-    // Verifica se o parâmetro 'nome' foi passado na URL
-    $nome = isset($_GET['nome']) ? $_GET['nome'] : null;
-    
-    // Verifica se o nome foi fornecido
-    if (!$nome) {
-        sendResponse(400, ["message" => "Nome do sensor/atuador não foi fornecido"]);
-        return;
-    }
-
-    // Simula leitura de dados a partir do arquivo JSON correspondente
-    $filePath = "files/{$nome}.json";  // Presumindo que os arquivos JSON estão em uma pasta chamada 'data'
-    
-    if (!file_exists($filePath)) {
-        sendResponse(404, ["message" => "Sensor/Atuador não encontrado"]);
-        return;
-    }
-
-    // Lê o conteúdo do arquivo JSON
-    $data = file_get_contents($filePath);
-    $sensorData = json_decode($data, true);
-    
-    // Retorna os dados
-    sendResponse(200, $sensorData);
+// Function to write data to a JSON file
+function writeDataToJson($filename, $data) {
+    $existingData = readDataFromJson($filename);
+    $existingData[] = $data; // Append new data
+    file_put_contents($filename, json_encode($existingData, JSON_PRETTY_PRINT));
 }
 
-// Função para lidar com requisições POST
-function handlePostRequest() {
-    // Decodifica o corpo da requisição JSON
-    $input = json_decode(file_get_contents('php://input'), true);
-    
-    // Verifica se os parâmetros esperados foram fornecidos
-    if (!isset($input['nome'])) {
-        sendResponse(400, ["message" => "Nome do sensor/atuador não foi fornecido"]);
-        return;
-    }
-    
-    if (!isset($input['valor']) || !isset($input['hora'])) {
-        sendResponse(400, ["message" => "Falta 1 ou mais parâmetros (nome, valor, hora)"]);
-        return;
-    }
+// Handle API requests
+header('Content-Type: application/json'); // Set response type to JSON
+$requestMethod = $_SERVER['REQUEST_METHOD'];
 
-    $nome = $input['nome'];
-    $valor = $input['valor'];
-    $hora = $input['hora'];
-    
-    // Simula a gravação de dados em um arquivo JSON correspondente
-    $filePath = "data/{$nome}.json";  // Presumindo que os arquivos são armazenados na pasta 'data'
-    
-    // Dados a serem gravados no arquivo JSON
-    $sensorData = [
-        "nome" => $nome,
-        "valor" => $valor,
-        "hora" => $hora
-    ];
-    
-    // Grava os dados no arquivo
-    file_put_contents($filePath, json_encode($sensorData));
-    
-    // Retorna uma resposta de sucesso
-    sendResponse(201, ["message" => "Dados gravados com sucesso"]);
-}
-
-// Lida com os diferentes métodos HTTP
-switch ($method) {
+switch ($requestMethod) {
     case 'GET':
-        handleGetRequest();
+        if (isset($_GET['type'])) {
+            $type = $_GET['type'];
+            switch ($type) {
+                case 'humidity':
+                    $data = readDataFromJson($humidityFile);
+                    break;
+                case 'soil_moisture':
+                    $data = readDataFromJson($soilMoistureFile);
+                    break;
+                case 'temperature':
+                    $data = readDataFromJson($temperatureFile);
+                    break;
+                case 'latest':
+                    // Return latest data for all types
+                    $latestData = [
+                        'humidity' => end(readDataFromJson($humidityFile)),
+                        'soil_moisture' => end(readDataFromJson($soilMoistureFile)),
+                        'temperature' => end(readDataFromJson($temperatureFile))
+                    ];
+                    echo json_encode($latestData);
+                    exit();
+                default:
+                    http_response_code(400); // Bad Request
+                    echo json_encode(['message' => 'Invalid type specified']);
+                    exit();
+            }
+            echo json_encode($data);
+        } else {
+            http_response_code(400); // Bad Request
+            echo json_encode(['message' => 'Type parameter is required']);
+        }
         break;
+
     case 'POST':
-        handlePostRequest();
+        $inputData = json_decode(file_get_contents('php://input'), true); // Get input data
+        if (isset($inputData['type']) && isset($inputData['value']) && isset($inputData['date'])) {
+            $newData = [
+                'value' => $inputData['value'],
+                'date' => $inputData['date']
+            ];
+            switch ($inputData['type']) {
+                case 'humidity':
+                    writeDataToJson($humidityFile, $newData);
+                    break;
+                case 'soil_moisture':
+                    writeDataToJson($soilMoistureFile, $newData);
+                    break;
+                case 'temperature':
+                    writeDataToJson($temperatureFile, $newData);
+                    break;
+                default:
+                    http_response_code(400); // Bad Request
+                    echo json_encode(['message' => 'Invalid type specified']);
+                    exit();
+            }
+            echo json_encode(['message' => 'Data added successfully']);
+        } else {
+            http_response_code(400); // Bad Request
+            echo json_encode(['message' => 'Invalid input data']);
+        }
         break;
+
     default:
-        // Retorna erro 405 para métodos não permitidos
-        sendResponse(405, ["message" => "Método não permitido"]);
+        http_response_code(405); // Method Not Allowed
+        echo json_encode(['message' => 'Method not allowed']);
         break;
 }
 ?>
-
-// ver descrição da api

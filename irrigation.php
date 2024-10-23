@@ -8,88 +8,35 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
-// Function to fetch data from the API
-function fetchDataFromApi($url) {
-    $jsonContent = file_get_contents($url);
+// Function to read data from JSON files
+function readDataFromJson($filePath) {
+    $jsonContent = file_get_contents($filePath);
     return json_decode($jsonContent, true); // Decode JSON data into an associative array
 }
 
-// Fetch the field data from the API
-$fieldData = fetchDataFromApi('api.php');
+// Fetch data from JSON files
+$humidityData = readDataFromJson('data/humidity/data.json');
+$soilMoistureData = readDataFromJson('data/soil_moisture/data.json');
+$temperatureData = readDataFromJson('data/temperature/data.json');
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="pt">
 <head>
-    <title>Crop Irrigation Status</title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        #map {
-            height: 600px;
-            width: 100%;
-        }
-        .chart-container {
-            width: 200px;
-            height: 200px;
-        }
-        body {
-            font-family: 'Orbitron', sans-serif;
-            background-color: #f8f9fa; /* Light background */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            min-height: 100vh;
-            margin: 0;
-        }
-        .table-container {
-            margin-top: 30px;
-            width: 80%;
-            margin: 0 auto;
-        }
-        .table-title {
-            text-align: center;
-            margin-top: 20px;
-            color: #28a745;
-            font-size: 32px;
-        }
-        .chart-container {
-            width: 100%; /* Ensures the charts take full column width */
-            margin: 0 auto;
-            margin-top: 30px;
-        }
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            width: 100%;
-        }
-        .row {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
-            width: 100%;
-        }
-        .col-md-4 {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            margin: 10px;
-        }
-    </style>
+<?php include 'style/head.php'; ?>
+<style>
+    #map {
+        height: 600px;
+        width: 100%;
+    }
+</style>
+
 </head>
+
 <body>
-    <!-- header -->
-<?php include 'header.php'; ?>
+
+<!-- header -->
+<?php include 'style/header.php'; ?>
 
     <div id="map"></div>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -117,24 +64,35 @@ $fieldData = fetchDataFromApi('api.php');
             popupAnchor: [0, -48] // point from which the popup should open relative to the iconAnchor
         });
 
-        
-        
-        // Example data for crop irrigation status in the United States
-        var crops = [
-            { "name": "Field 51", "lat": 37.24804, "lng": -115.800155, "status": "Irrigated", "lastWatered": "2023-10-01", "soilMoisture": "75%" }, // nevada
-        ];
+        // PHP arrays converted to JavaScript
+        var humidityData = <?php echo json_encode($humidityData); ?>;
+        var soilMoistureData = <?php echo json_encode($soilMoistureData); ?>;
+        var temperatureData = <?php echo json_encode($temperatureData); ?>;
+
+        // Combine the data based on field names or IDs
+        var crops = humidityData.map((crop, index) => {
+            return {
+                name: crop.name,
+                lat: crop.lat,
+                lng: crop.lng,
+                humidity: crop.humidity,
+                soilMoisture: soilMoistureData[index] ? soilMoistureData[index].soilMoisture : 'N/A',
+                temperature: temperatureData[index] ? temperatureData[index].temperature : 'N/A',
+                status: crop.humidity > 70 ? "Irrigated" : "Not Irrigated" // Example status logic
+            };
+        });
 
         // Function to create a chart
-        function createChart(canvasId, data) {
+        function createChart(canvasId, data, label, color) {
             var ctx = document.getElementById(canvasId).getContext('2d');
             new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                     datasets: [{
-                        label: 'Soil Moisture (%)',
+                        label: label,
                         data: data,
-                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderColor: color,
                         borderWidth: 1,
                         fill: false
                     }]
@@ -155,17 +113,17 @@ $fieldData = fetchDataFromApi('api.php');
         crops.forEach(function(crop) {
             var icon = crop.status === "Irrigated" ? greenIcon : redIcon;
             var marker = L.marker([crop.lat, crop.lng], { icon: icon, title: crop.status }).addTo(map);
-            marker.bindPopup("<b>" + crop.name + "</b><br>Status: " + crop.status);
+            marker.bindPopup("<b>" + crop.name + "</b><br>Status: " + crop.status + "<br>Humidity: " + crop.humidity + "%<br>Soil Moisture: " + crop.soilMoisture + "%<br>Temperature: " + crop.temperature + "°C");
 
-            // Add mouseover event to show additional info
+            // Add mouseover event to show additional info with charts
             marker.on('mouseover', function(e) {
-                var tooltipContent = "<b>" + crop.name + "</b><br>Status: " + crop.status + "<br>Last Watered: " + crop.lastWatered + "<br>Soil Moisture: " + crop.soilMoisture;
+                var tooltipContent = "<b>" + crop.name + "</b><br>Status: " + crop.status + "<br>Humidity: " + crop.humidity + "%<br>Soil Moisture: " + crop.soilMoisture + "%<br>Temperature: " + crop.temperature + "°C";
                 tooltipContent += '<div class="chart-container"><canvas id="chart-' + crop.name.replace(/\s+/g, '-') + '"></canvas></div>';
                 marker.bindTooltip(tooltipContent).openTooltip();
 
-                // Generate random data for the chart (replace with real data as needed)
+                // Example data for the chart (use real data if available)
                 var randomData = Array.from({ length: 12 }, () => Math.floor(Math.random() * 100));
-                createChart('chart-' + crop.name.replace(/\s+/g, '-'), randomData);
+                createChart('chart-' + crop.name.replace(/\s+/g, '-'), randomData, 'Humidity (%)', 'rgba(75, 192, 192, 1)');
             });
 
             // Add mouseout event to close the tooltip
