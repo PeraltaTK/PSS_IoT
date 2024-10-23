@@ -15,7 +15,7 @@ function readDataFromJson($filename) {
 }
 
 // Read the field data
-$fieldData = readDataFromJson('field_data.json');
+$fieldData = readDataFromJson('files/field_data.json');
 ?>
 
 <!DOCTYPE html>

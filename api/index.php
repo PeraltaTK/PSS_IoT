@@ -1,5 +1,3 @@
-// esquema API feito no quadro pelo stor usado para gerar este codigo [OCR]
-
 <?php
 // Define os cabeçalhos da API
 header("Content-Type: application/json");
@@ -25,7 +23,7 @@ function handleGetRequest() {
     }
 
     // Simula leitura de dados a partir do arquivo JSON correspondente
-    $filePath = "data/{$nome}.json";  // Presumindo que os arquivos JSON estão em uma pasta chamada 'data'
+    $filePath = "files/{$nome}.json";  // Presumindo que os arquivos JSON estão em uma pasta chamada 'data'
     
     if (!file_exists($filePath)) {
         sendResponse(404, ["message" => "Sensor/Atuador não encontrado"]);

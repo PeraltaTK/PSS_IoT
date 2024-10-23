@@ -3,7 +3,7 @@
 session_start();
 
 // Load users to an array
-$usersFile = file_get_contents('users.json');
+$usersFile = file_get_contents('files/users.json');
 $usersArray = json_decode($usersFile, true);
 
 // If the request is post (data submit)
